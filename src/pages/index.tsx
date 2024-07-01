@@ -1,6 +1,10 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
+
+import { IFeedback } from "@/types/feedback";
 
 export default function Home() {
+  const [feedbackItems, setFeedbackItems] = useState<IFeedback[]>([]);
+
   const emailInput = useRef<HTMLInputElement>(null);
   const feedbackInput = useRef<HTMLTextAreaElement>(null);
 
@@ -16,11 +20,19 @@ export default function Home() {
       method: "POST",
       body: JSON.stringify(reqBody),
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     })
       .then((response) => response.json())
       .then((data) => console.log(data));
+  }
+
+  function loadFeedbackHandler() {
+    fetch("/api/feedback")
+      .then((response) => response.json())
+      .then((data) => {
+        setFeedbackItems(data.feedback);
+      });
   }
 
   return (
@@ -29,7 +41,7 @@ export default function Home() {
       <form onSubmit={submitHandler}>
         <div>
           <label htmlFor="email">Your Email Address</label>
-          <input type="text" id="email" ref={emailInput} />
+          <input type="email" id="email" ref={emailInput} />
         </div>
         <div>
           <label htmlFor="feedback">Your Feedback</label>
@@ -37,6 +49,13 @@ export default function Home() {
         </div>
         <button>Send Feedback</button>
       </form>
+      <hr />
+      <button onClick={loadFeedbackHandler}>Load Feedback</button>
+      <ul>
+        {feedbackItems.map((item) => (
+          <li key={item.id}>{item.text}</li>
+        ))}
+      </ul>
     </div>
   );
 }
