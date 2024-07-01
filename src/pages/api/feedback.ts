@@ -3,6 +3,30 @@ import path from "path";
 
 import { NextApiRequest, NextApiResponse } from "next";
 
+function buildFeedbackPath() {
+  return path.join(process.cwd(), "data", "feedback.json");
+}
+
+function extractFeedback(filePath: string) {
+  if (!fs.existsSync(filePath)) {
+    return [];
+  }
+
+  const fileData = fs.readFileSync(filePath, "utf8");
+
+  if (!fileData) {
+    return [];
+  }
+
+  try {
+    const data = JSON.parse(fileData);
+    return data;
+  } catch (error) {
+    console.error("Error parsing JSON:", error);
+    return [];
+  }
+}
+
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
     const email = req.body.email;
@@ -14,21 +38,15 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       text: feedbackText,
     };
 
-    const filePath = path.join(process.cwd(), "data", "feedback.json");
-
-    let data = [];
-    
-    try {
-      const fileData = fs.readFileSync(filePath, "utf8");
-      data = JSON.parse(fileData);
-    } catch (error) {
-      console.log(error)
-    }
-
+    const filePath = buildFeedbackPath();
+    const data = extractFeedback(filePath);
     data.push(newFeedback);
     fs.writeFileSync(filePath, JSON.stringify(data));
     res.status(201).json({ message: "Success!", feedback: newFeedback });
   } else {
-    res.status(200).json({ message: "This works!" });
+    const filePath = buildFeedbackPath();
+    const data = extractFeedback(filePath);
+
+    res.status(200).json({ feedback: data });
   }
 }
