@@ -1,4 +1,5 @@
 export interface IFeedback {
   id: string;
-  text: string;
+  email?: string;
+  text?: string;
 }
