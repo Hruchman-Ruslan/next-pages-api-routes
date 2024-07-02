@@ -12,7 +12,7 @@ export default function FeedbackPage({ feedbackItems }: FeedbackPageProps) {
   const [feedbackData, setFeedbackData] = useState<IFeedback>();
 
   function loaderFeedbackHandler(id: string) {
-    fetch(`/api/${id}`)
+    fetch(`/api/feedback/${id}`)
       .then((response) => response.json())
       .then((data) => {
         setFeedbackData(data.feedback);
